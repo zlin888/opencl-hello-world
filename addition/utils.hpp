@@ -16,9 +16,13 @@ using namespace std;
 namespace utils
 {
     extern cl_int err;
-    cl_context createContext();
+
+    cl_platform_id getPlatformId();
+    cl_device_id getDeviceId(cl_platform_id platformId);
+    cl_context createContext(cl_device_id deviceId);
+    cl_command_queue createCommandQueue(cl_context context, cl_device_id deviceId);
     bool checkAndPrint(string errMsg = string(), string stdMsg = string());
     const char *oclErrorString(cl_int error);
-} // namespace Utils
+} // namespace utils
 
 #endif

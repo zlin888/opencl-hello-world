@@ -8,14 +8,16 @@
 #include <CL/cl.hpp>
 #include "utils.hpp"
 
+using namespace std;
+
 int main(int argc, char** argvs) {
-    cl_context context = 0;
-    cl_command_queue commandQueue = 0;
     cl_program program = 0;
-    cl_device_id device = 0;
     cl_kernel kernel = 0;
     cl_mem memObjects[3] = {0, 0, 0};
-    cl_int errNum;
+    cl_int err;
 
-    context = utils::createContext();
+    cl_platform_id platformId = utils::getPlatformId();
+    cl_device_id deviceId = utils::getDeviceId(platformId);
+    cl_context context = utils::createContext(deviceId);
+    cl_command_queue commandQueue = utils::createCommandQueue(context, deviceId);
 }

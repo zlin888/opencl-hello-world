@@ -4,24 +4,50 @@
 namespace utils
 {
     cl_int err;
-    cl_context createContext()
+    cl_platform_id getPlatformId()
     {
-        printf("Initialize OpenCL object and context\n");
-        //setup devices and context
-
-        //this function is defined in util.cpp
-        //it comes from the NVIDIA SDK example code
-        ///err = oclGetPlatformID(&platform);
+        cl_platform_id platformId;
+        cl_uint numPlatforms;
+        cl_uint num_entries = 1;
+        err = clGetPlatformIDs(num_entries, &platformId, &numPlatforms);
         //oclErrorString is also defined in util.cpp and comes from the NVIDIA SDK
-        ///printf("oclGetPlatformID: %s\n", oclErrorString(err));
-        std::vector<cl::Platform> platforms;
-        err = cl::Platform::get(&platforms);
-        printf("cl::Platform::get(): %s\n", oclErrorString(err));
-        printf("number of platforms: %d\n", platforms.size());
-        if (platforms.size() == 0)
+        printf("oclGetPlatformID: %s\n", oclErrorString(err));
+        if (!checkAndPrint("fail to get platformID"))
         {
-            printf("Platform size 0\n");
+            return NULL;
         }
+        return platformId;
+    }
+
+    cl_device_id getDeviceId(cl_platform_id platformId)
+    {
+        cl_device_id deviceId;
+        cl_uint numDevices;
+        err = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_GPU, 1, &deviceId, &numDevices);
+        printf("clGetDeviceIDs (get number of devices): %s\n", oclErrorString(err));
+        printf("number of devices %d\n", numDevices);
+        if (!checkAndPrint("fail to get deviceID"))
+        {
+            return NULL;
+        }
+        return deviceId;
+    }
+
+    cl_context createContext(cl_device_id deviceId)
+    {
+        cl_context context = clCreateContext(0, 1, &deviceId, NULL, NULL, &err);
+        printf("clCreateContext: %s\n", oclErrorString(err));
+        if (!checkAndPrint("fail to create context"))
+        {
+            return NULL;
+        }
+        return context;
+    }
+
+    cl_command_queue createCommandQueue(cl_context context, cl_device_id deviceId)
+    {
+        cl_command_queue command_queue = clCreateCommandQueue(context, deviceId, 0, &err);
+        return command_queue;
     }
 
     bool checkAndPrint(string errMsg, string stdMsg)
