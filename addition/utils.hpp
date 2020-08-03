@@ -5,20 +5,20 @@
  * @modify date 2020-08-03 11:14:17
  * @desc utils for opencl 
  */
-#ifndef UTILS_HPP 
-#define UTILS_HPP 
+#ifndef UTILS_HPP
+#define UTILS_HPP
 
 #include <CL/cl.hpp>
-#include <iostream> 
+#include <iostream>
+#include <string>
 
-cl_context createContext() {
-    cl_int errNum;
-    cl_uint numPlatforms;
-    cl_platform_id firstPlatformId;
-    cl_context context = NULL;
-
-    errNum = clGetPlatformIDs(1, &firstPlatformId, &numPlatforms);
-    std::cout << numPlatforms << std::endl;
-} 
+using namespace std;
+namespace utils
+{
+    extern cl_int err;
+    cl_context createContext();
+    bool checkAndPrint(string errMsg = string(), string stdMsg = string());
+    const char *oclErrorString(cl_int error);
+} // namespace Utils
 
 #endif

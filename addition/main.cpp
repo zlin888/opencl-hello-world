@@ -17,5 +17,5 @@ int main(int argc, char** argvs) {
     cl_mem memObjects[3] = {0, 0, 0};
     cl_int errNum;
 
-    context = createContext();
+    context = utils::createContext();
 }

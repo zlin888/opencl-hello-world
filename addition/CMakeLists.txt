@@ -22,10 +22,10 @@ message("${includes}\n")
 ADD_DEFINITIONS(-g )
 
 # #the source files we want to compile into the library
-# set (LIBCXXFILES cll.cpp part1.cpp util.cpp)
-# #set a CMake variable to name the library
-# SET(cllib part1)
-# ADD_LIBRARY(${cllib} ${LIBCXXFILES})
+set (LIBCXXFILES utils.cpp)
+#set a CMake variable to name the library
+SET(cllib addition)
+ADD_LIBRARY(${cllib} ${LIBCXXFILES})
 
 
 #create the executable
@@ -33,5 +33,6 @@ SET(EXEC a.out)
 ADD_EXECUTABLE(${EXEC} main.cpp)
 
 TARGET_LINK_LIBRARIES (${EXEC}
+   ${cllib}
    ${OPENCL_LIBRARIES}
 )
