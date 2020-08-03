@@ -2,14 +2,14 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 project(addition)
 
 #need to include FindOPENCL.cmake to
-SET( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
+SET( CMAKE_MODULE_PATH ${addition_SOURCE_DIR}/../cmake)
 
 message("CMake module path: ${CMAKE_MODULE_PATH}\n")
 
-# FIND_PACKAGE (OPENCL)
+FIND_PACKAGE (OPENCL)
 
 INCLUDE_DIRECTORIES( 
-    ${CMAKE_CURRENT_SOURCE_DIR}/../opencl10
+    ${addition_SOURCE_DIR}/../opencl10
 )
 
 message("include directories: \n")
@@ -29,7 +29,7 @@ ADD_DEFINITIONS(-g )
 
 
 #create the executable
-SET(EXEC addition.out)
+SET(EXEC a.out) 
 ADD_EXECUTABLE(${EXEC} main.cpp)
 
 TARGET_LINK_LIBRARIES (${EXEC}

@@ -8,7 +8,7 @@
 #ifndef UTILS_HPP 
 #define UTILS_HPP 
 
-#include "CL/cl.hpp"
+#include <CL/cl.hpp>
 #include <iostream> 
 
 cl_context createContext() {
@@ -17,7 +17,7 @@ cl_context createContext() {
     cl_platform_id firstPlatformId;
     cl_context context = NULL;
 
-    // errNum = clGetPlatformIDs(1, &firstPlatformId, &numPlatforms);
+    errNum = clGetPlatformIDs(1, &firstPlatformId, &numPlatforms);
     std::cout << numPlatforms << std::endl;
 } 
 
