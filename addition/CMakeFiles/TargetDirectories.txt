@@ -1,0 +1,3 @@
+/Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/rebuild_cache.dir
+/Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/edit_cache.dir
+/Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/addition.out.dir

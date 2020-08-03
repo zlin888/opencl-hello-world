@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/zlin/Local/opencl-hello-world/addition/main.cpp
+CL/cl.hpp
+/Users/zlin/Local/opencl-hello-world/addition/CL/cl.hpp
+utils.hpp
+/Users/zlin/Local/opencl-hello-world/addition/utils.hpp
+
+/Users/zlin/Local/opencl-hello-world/addition/utils.hpp
+OpenCL/cl.h
+-
+iostream
+-
+

@@ -1,0 +1,84 @@
+Determining if the CL_VERSION_2_2 exist failed with the following output:
+Change Dir: /Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_551d7/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_551d7.dir/build.make CMakeFiles/cmTC_551d7.dir/build
+Building C object CMakeFiles/cmTC_551d7.dir/CheckSymbolExists.c.o
+/Library/Developer/CommandLineTools/usr/bin/cc  -F/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk -o CMakeFiles/cmTC_551d7.dir/CheckSymbolExists.c.o -c /Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/CMakeTmp/CheckSymbolExists.c:8:19: error: use of undeclared identifier 'CL_VERSION_2_2'
+  return ((int*)(&CL_VERSION_2_2))[argc];
+                  ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTC_551d7.dir/CheckSymbolExists.c.o] Error 1
+make: *** [cmTC_551d7/fast] Error 2
+
+
+File /Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include </Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/OpenCL.framework/Headers/cl.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CL_VERSION_2_2
+  return ((int*)(&CL_VERSION_2_2))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the CL_VERSION_2_1 exist failed with the following output:
+Change Dir: /Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_d1300/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_d1300.dir/build.make CMakeFiles/cmTC_d1300.dir/build
+Building C object CMakeFiles/cmTC_d1300.dir/CheckSymbolExists.c.o
+/Library/Developer/CommandLineTools/usr/bin/cc  -F/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk -o CMakeFiles/cmTC_d1300.dir/CheckSymbolExists.c.o -c /Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/CMakeTmp/CheckSymbolExists.c:8:19: error: use of undeclared identifier 'CL_VERSION_2_1'
+  return ((int*)(&CL_VERSION_2_1))[argc];
+                  ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTC_d1300.dir/CheckSymbolExists.c.o] Error 1
+make: *** [cmTC_d1300/fast] Error 2
+
+
+File /Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include </Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/OpenCL.framework/Headers/cl.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CL_VERSION_2_1
+  return ((int*)(&CL_VERSION_2_1))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the CL_VERSION_2_0 exist failed with the following output:
+Change Dir: /Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_0d478/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_0d478.dir/build.make CMakeFiles/cmTC_0d478.dir/build
+Building C object CMakeFiles/cmTC_0d478.dir/CheckSymbolExists.c.o
+/Library/Developer/CommandLineTools/usr/bin/cc  -F/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk -o CMakeFiles/cmTC_0d478.dir/CheckSymbolExists.c.o -c /Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/CMakeTmp/CheckSymbolExists.c:8:19: error: use of undeclared identifier 'CL_VERSION_2_0'
+  return ((int*)(&CL_VERSION_2_0))[argc];
+                  ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTC_0d478.dir/CheckSymbolExists.c.o] Error 1
+make: *** [cmTC_0d478/fast] Error 2
+
+
+File /Users/zlin/Local/opencl-hello-world/addition/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include </Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/OpenCL.framework/Headers/cl.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CL_VERSION_2_0
+  return ((int*)(&CL_VERSION_2_0))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
