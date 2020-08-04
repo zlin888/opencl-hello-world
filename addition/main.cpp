@@ -13,9 +13,6 @@ using namespace std;
 
 int main(int argc, char **argvs)
 {
-    cl_mem memObjects[3] = {0, 0, 0};
-    cl_int err;
-
     cl_platform_id platformId = utils::getPlatformId();
     cl_device_id deviceId = utils::getDeviceId(platformId);
     cl_context context = utils::createContext(deviceId);
@@ -31,4 +28,6 @@ int main(int argc, char **argvs)
         clReleaseProgram(program);
     if (commandQueue)
         clReleaseCommandQueue(commandQueue);
+    if (kernel)
+        clReleaseKernel(kernel);
 }
