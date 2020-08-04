@@ -5,7 +5,7 @@ __kernel void vec_add(__global const float* a, __global const float* b, __global
 {
     unsigned int i = get_global_id(0);
 
-    if (id < n) { // check overflow
+    if (i < n) { // check overflow
         c[i] = a[i] + b[i];
     }
 }
