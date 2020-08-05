@@ -31,6 +31,23 @@ class Matrix(NamedTuple):
     def __getitem__(self, key: int) -> List[float]:
         return self.matrix[key]
 
+    def __mul__(self, other):
+        return self.mul(self, other)
+
+    def __rmul__(self, other):
+        return self.mul(other, self)
+
+    @staticmethod
+    def mul(a, b):
+        assert a.dim_col == b.dim_row, "l_matrix's dim_col should match r_matrix's dim_row"
+        c = [[0 for j in range(b.dim_col)] for i in range(a.dim_row)]
+        # n*k * k*m = n*m
+        for i in range(a.dim_row):
+            for k in range(a.dim_col):  # a.dim_col == b.dim_row (k=k)
+                for j in range(b.dim_col):
+                    c[i][j] += a[i][k] * b[k][j]
+        return Matrix(a.dim_row, b.dim_col, c)
+
 
 def get_matrix(dim_row: int, dim_col: int, elements: List[float] = None) -> Type[Matrix]:
     if not elements:
@@ -43,16 +60,4 @@ def get_matrix(dim_row: int, dim_col: int, elements: List[float] = None) -> Type
         return Matrix(dim_row, dim_col,
                       [[elements[i * dim_col + j] for j in range(dim_col)] for i in range(dim_row)])
 
-
-def mul(a: Type[Matrix], b: Type[Matrix]) -> Type[Matrix]:
-    assert a.dim_col == b.dim_row, "l_matrix's dim_col should match r_matrix's dim_row"
-    c = [[0 for j in range(b.dim_col)] for i in range(a.dim_row)]
-    # n*k * k*m = n*m
-    for i in range(a.dim_row):
-        for j in range(b.dim_col):
-            for k in range(a.dim_col):  # a.dim_col == b.dim_row (k=k)
-                c[i][j] += a[i][k] * b[k][j]
-    return c
-
-
-print(mul(get_matrix(3, 12), get_matrix(12, 3)))
+print(get_matrix(5, 12) * get_matrix(12, 3))
