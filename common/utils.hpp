@@ -25,7 +25,8 @@ namespace utils
     cl_kernel createAndsetupKernel(cl_program program,
                                    cl_context context,
                                    cl_command_queue commandQueue,
-                                   cl_mem *cl_c);
+                                   cl_mem *cl_c_ptr,
+                                   const char *kernel_name);
     void runKernel(cl_kernel kernel, cl_command_queue commandQueue, cl_mem cl_c);
     void buildProgram(cl_program program, cl_device_id deviceId);
     bool checkAndPrint(string errMsg = string(), string stdMsg = string());

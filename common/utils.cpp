@@ -55,7 +55,7 @@ namespace utils
         const char *cSource = kernel_source.c_str();
         size_t lengths = (size_t)kernel_source.size();
         cl_program program = clCreateProgramWithSource(context, 1,
-                                                       &cSource, &lengths, &err);
+            &cSource, &lengths, &err);
         printf("clCreateProgramWithSource: %s\n", oclErrorString(err));
         return program;
 
@@ -86,53 +86,70 @@ namespace utils
     }
 
     cl_kernel createAndsetupKernel(cl_program program,
-                                   cl_context context,
-                                   cl_command_queue commandQueue,
-                                   cl_mem *cl_c_ptr)
+        cl_context context,
+        cl_command_queue commandQueue,
+        cl_mem *cl_c_ptr,
+        const char* kernel_name)
     {
         // initialize our kernel from the program
-        cl_kernel kernel = clCreateKernel(program, "vec_add", &err);
+        cl_kernel kernel = clCreateKernel(program, kernel_name, &err);
         printf("clCreateKernel: %s\n", oclErrorString(err));
 
         //initialize our CPU memory arrays, send them to the device and set the kernel arguements
         int size = 10;
-        float *a = new float[size];
-        float *b = new float[size];
-        float *c = new float[size];
-        for (int i = 0; i < size; i++)
+        int M = 5;
+        int K = 2;
+        int N = 10;
+        unsigned int A_SIZE = M * K;
+        unsigned int B_SIZE = K * N;
+        unsigned int C_SIZE = M * N;
+
+        float *A = new float[A_SIZE];
+        float *B = new float[B_SIZE];
+        float *C = new float[C_SIZE];
+
+        for (int i = 0; i < A_SIZE; i++)
         {
-            a[i] = 1.0f * i;
-            b[i] = 1.0f * i;
-            c[i] = 0.0f;
+            A[i] = 1.0f * i;
+        }
+
+        for (int i = 0; i < B_SIZE; i++)
+        {
+            B[i] = 1.0f * i;
+        }
+
+        for (int i = 0; i < C_SIZE; i++)
+        {
+            C[i] = 0.0f;
         }
 
         printf("Creating mem in device\n");
         // create mem in device
         size_t array_size = sizeof(float) * size;
-        cl_mem cl_a = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * size, NULL, &err);
-        cl_mem cl_b = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * size, NULL, &err);
-        *cl_c_ptr = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * size, NULL, &err);
+        cl_mem cl_a = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * A_SIZE, NULL, &err);
+        cl_mem cl_b = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * B_SIZE, NULL, &err);
+        *cl_c_ptr = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * C_SIZE, NULL, &err);
 
         printf("Pushing data to the GPU\n");
         //push our CPU arrays to the GPU
-        cl_event event;
-        err = clEnqueueWriteBuffer(commandQueue, cl_a, CL_TRUE, 0, sizeof(float) * size, a, 0, NULL, &event);
-        err = clEnqueueWriteBuffer(commandQueue, cl_b, CL_TRUE, 0, sizeof(float) * size, b, 0, NULL, &event);
-        clReleaseEvent(event);
+        err = clEnqueueWriteBuffer(commandQueue, cl_a, CL_TRUE, 0, sizeof(float) * A_SIZE, A, 0, NULL, NULL);
+        err = clEnqueueWriteBuffer(commandQueue, cl_b, CL_TRUE, 0, sizeof(float) * B_SIZE, B, 0, NULL, NULL);
 
         printf("set the arguements of our kernel\n");
         //set the arguements of our kernel
         err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&cl_a);
         err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&cl_b);
         err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)cl_c_ptr);
-        err = clSetKernelArg(kernel, 3, sizeof(unsigned int), (void *)&size);
+        err = clSetKernelArg(kernel, 3, sizeof(unsigned int), (void *)&M);
+        err = clSetKernelArg(kernel, 4, sizeof(unsigned int), (void *)&K);
+        err = clSetKernelArg(kernel, 5, sizeof(unsigned int), (void *)&N);
         //Wait for the command queue to finish these commands before proceeding
         clFinish(commandQueue);
 
         //clean up allocated space.
-        delete[] a;
-        delete[] b;
-        delete[] c;
+        delete[] A;
+        delete[] B;
+        delete[] C;
 
         return kernel;
     }
@@ -141,7 +158,7 @@ namespace utils
         printf("in runKernel\n");
         //execute the kernel
         cl_event event;
-        const size_t globalWorkSize = 10;
+        const size_t globalWorkSize = 50;
         err = clEnqueueNDRangeKernel(commandQueue, kernel, 1, NULL, &globalWorkSize, NULL, 0, NULL, &event);
         clReleaseEvent(event);
         printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
@@ -182,7 +199,7 @@ namespace utils
     // *********************************************************************
     const char *oclErrorString(cl_int error)
     {
-        static const char *errorString[] = {
+        static const char *errorString[] ={
             "CL_SUCCESS",
             "CL_DEVICE_NOT_FOUND",
             "CL_DEVICE_NOT_AVAILABLE",
