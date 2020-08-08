@@ -1,5 +1,6 @@
 #include "utils.hpp"
 #include <stdio.h>
+#include <math.h>
 using namespace std;
 namespace utils
 {
@@ -32,7 +33,7 @@ namespace utils
 
     void CL::createCommandQueue()
     {
-        this->commandQueue = clCreateCommandQueue(this->context, this->deviceId, 0, &this->err);
+        this->commandQueue = clCreateCommandQueue(this->context, this->deviceId, CL_QUEUE_PROFILING_ENABLE, &this->err);
     }
 
     void CL::loadProgram()
@@ -117,8 +118,6 @@ namespace utils
         this->err = clSetKernelArg(kernel, 3, sizeof(unsigned int), (void *)&M);
         this->err = clSetKernelArg(kernel, 4, sizeof(unsigned int), (void *)&K);
         this->err = clSetKernelArg(kernel, 5, sizeof(unsigned int), (void *)&N);
-        //Wait for the command queue to finish these commands before proceeding
-        clFinish(commandQueue);
 
         //clean up allocated space.
         delete[] A;
@@ -128,9 +127,15 @@ namespace utils
         printf("in runKernel\n");
         //execute the kernel
         const size_t globalWorkSize = C_SIZE;
-        this->err = clEnqueueNDRangeKernel(commandQueue, kernel, 2, NULL, &globalWorkSize, NULL, 0, NULL, NULL);
+        cl_event event;
+        this->err = clEnqueueNDRangeKernel(commandQueue, kernel, 2, NULL, &globalWorkSize, NULL, 0, NULL, &event);
         printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(this->err));
 
+        //Wait for the command queue to finish these commands before proceeding
+        clFinish(commandQueue);
+
+
+        printRuntimeInfo(event);
         //lets check our calculations by reading from the device memory and printing out the results
         float c_done[globalWorkSize];
         this->err = clEnqueueReadBuffer(commandQueue, cl_c, CL_TRUE, 0, sizeof(float) * globalWorkSize, &c_done, 0, NULL, NULL);
@@ -265,5 +270,15 @@ namespace utils
             }
             printf("\n");
         }
+    }
+
+    void printRuntimeInfo(cl_event event) {
+        cl_ulong queued_time, end_time;
+        clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_QUEUED, sizeof(cl_ulong), &queued_time, NULL);
+        clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &end_time, NULL);
+        double runtime = (double)(end_time - queued_time) * pow(10, -9);
+        cout << "queued_time: " << queued_time << endl;
+        cout << "end_time: " << end_time << endl;
+        cout << "runtime: " << runtime << endl;
     }
 } // namespace utils

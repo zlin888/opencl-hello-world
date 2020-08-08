@@ -17,6 +17,7 @@ namespace utils
 {
     const char *oclErrorString(cl_int error);
     void printMatrix(int M, int N, float *matrix);
+    void printRuntimeInfo(cl_event event);
     class CL {
     public:
         string kernel_source;
