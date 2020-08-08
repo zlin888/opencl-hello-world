@@ -1,99 +1,73 @@
 #include "utils.hpp"
 #include <stdio.h>
-
+using namespace std;
 namespace utils
 {
-    cl_int err;
-    cl_platform_id getPlatformId()
+
+    void CL::getPlatformId()
     {
-        cl_platform_id platformId;
         cl_uint numPlatforms;
         cl_uint num_entries = 1;
-        err = clGetPlatformIDs(num_entries, &platformId, &numPlatforms);
+        this->err = clGetPlatformIDs(num_entries, &this->platformId, &numPlatforms);
         //oclErrorString is also defined in util.cpp and comes from the NVIDIA SDK
-        printf("oclGetPlatformID: %s\n", oclErrorString(err));
-        if (!checkAndPrint("fail to get platformID"))
-        {
-            return NULL;
-        }
-        return platformId;
+        printf("oclGetPlatformID: %s\n", oclErrorString(this->err));
+        checkAndPrint("fail to get platformID");
     }
 
-    cl_device_id getDeviceId(cl_platform_id platformId)
+    void CL::getDeviceId()
     {
-        cl_device_id deviceId;
         cl_uint numDevices;
-        err = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_GPU, 1, &deviceId, &numDevices);
-        printf("clGetDeviceIDs (get number of devices): %s\n", oclErrorString(err));
+        this->err = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_GPU, 1, &this->deviceId, &numDevices);
+        printf("clGetDeviceIDs (get number of devices): %s\n", oclErrorString(this->err));
         printf("number of devices %d\n", numDevices);
-        if (!checkAndPrint("fail to get deviceID"))
-        {
-            return NULL;
-        }
-        return deviceId;
+        checkAndPrint("fail to get deviceID");
     }
 
-    cl_context createContext(cl_device_id deviceId)
+    void CL::createContext()
     {
-        cl_context context = clCreateContext(0, 1, &deviceId, NULL, NULL, &err);
-        printf("clCreateContext: %s\n", oclErrorString(err));
-        if (!checkAndPrint("fail to create context"))
-        {
-            return NULL;
-        }
-        return context;
+        this->context = clCreateContext(0, 1, &this->deviceId, NULL, NULL, &this->err);
+        printf("clCreateContext: %s\n", oclErrorString(this->err));
+        checkAndPrint("fail to create context");
     }
 
-    cl_command_queue createCommandQueue(cl_context context, cl_device_id deviceId)
+    void CL::createCommandQueue()
     {
-        cl_command_queue command_queue = clCreateCommandQueue(context, deviceId, 0, &err);
-        return command_queue;
+        this->commandQueue = clCreateCommandQueue(this->context, this->deviceId, 0, &this->err);
     }
 
-    cl_program loadProgram(string kernel_source, cl_context context)
+    void CL::loadProgram()
     {
-        const char *cSource = kernel_source.c_str();
-        size_t lengths = (size_t)kernel_source.size();
-        cl_program program = clCreateProgramWithSource(context, 1,
-            &cSource, &lengths, &err);
-        printf("clCreateProgramWithSource: %s\n", oclErrorString(err));
-        return program;
-
-        // buildEecutable();
-
-        //Free buffer returned by file_contents
-        // free(cSourceCL);
+        const char *cSource = this->kernel_source.c_str();
+        size_t lengths = (size_t)this->kernel_source.size();
+        this->program = clCreateProgramWithSource(this->context, 1,
+            &cSource, &lengths, &this->err);
     }
 
-    void buildProgram(cl_program program, cl_device_id deviceId)
+    void CL::buildProgram()
     {
-        err = clBuildProgram(program, 1, &deviceId, NULL, NULL, NULL);
-        printf("clBuildProgram: %s\n", oclErrorString(err));
-        //if(err != CL_SUCCESS){
+        this->err = clBuildProgram(this->program, 1, &this->deviceId, NULL, NULL, NULL);
+        printf("clBuildProgram: %s\n", oclErrorString(this->err));
         cl_build_status build_status;
-        err = clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_STATUS, sizeof(cl_build_status), &build_status, NULL);
+        this->err = clGetProgramBuildInfo(this->program, this->deviceId, CL_PROGRAM_BUILD_STATUS, sizeof(cl_build_status), &build_status, NULL);
 
         char *build_log;
         size_t ret_val_size;
-        err = clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, 0, NULL, &ret_val_size);
+        this->err = clGetProgramBuildInfo(this->program, this->deviceId, CL_PROGRAM_BUILD_LOG, 0, NULL, &ret_val_size);
 
         build_log = new char[ret_val_size + 1];
-        err = clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, ret_val_size, build_log, NULL);
+        this->err = clGetProgramBuildInfo(this->program, this->deviceId, CL_PROGRAM_BUILD_LOG, ret_val_size, build_log, NULL);
         build_log[ret_val_size] = '\0';
         printf("BUILD LOG: \n %s", build_log);
         //}
         printf("program built\n");
+        delete build_log;
     }
 
-    cl_kernel createAndsetupKernel(cl_program program,
-        cl_context context,
-        cl_command_queue commandQueue,
-        cl_mem *cl_c_ptr,
-        const char* kernel_name)
+    void CL::runKernel()
     {
         // initialize our kernel from the program
-        cl_kernel kernel = clCreateKernel(program, kernel_name, &err);
-        printf("clCreateKernel: %s\n", oclErrorString(err));
+        this->kernel = clCreateKernel(this->program, this->kernel_name, &this->err);
+        printf("clCreateKernel: %s\n", oclErrorString(this->err));
 
         //initialize our CPU memory arrays, send them to the device and set the kernel arguements
         int size = 10;
@@ -126,23 +100,23 @@ namespace utils
         printf("Creating mem in device\n");
         // create mem in device
         size_t array_size = sizeof(float) * size;
-        cl_mem cl_a = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * A_SIZE, NULL, &err);
-        cl_mem cl_b = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * B_SIZE, NULL, &err);
-        *cl_c_ptr = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * C_SIZE, NULL, &err);
+        this->cl_a = clCreateBuffer(this->context, CL_MEM_READ_ONLY, sizeof(float) * A_SIZE, NULL, &this->err);
+        this->cl_b = clCreateBuffer(this->context, CL_MEM_READ_ONLY, sizeof(float) * B_SIZE, NULL, &this->err);
+        this->cl_c = clCreateBuffer(this->context, CL_MEM_WRITE_ONLY, sizeof(float) * C_SIZE, NULL, &this->err);
 
         printf("Pushing data to the GPU\n");
         //push our CPU arrays to the GPU
-        err = clEnqueueWriteBuffer(commandQueue, cl_a, CL_TRUE, 0, sizeof(float) * A_SIZE, A, 0, NULL, NULL);
-        err = clEnqueueWriteBuffer(commandQueue, cl_b, CL_TRUE, 0, sizeof(float) * B_SIZE, B, 0, NULL, NULL);
+        this->err = clEnqueueWriteBuffer(this->commandQueue, this->cl_a, CL_TRUE, 0, sizeof(float) * A_SIZE, A, 0, NULL, NULL);
+        this->err = clEnqueueWriteBuffer(this->commandQueue, this->cl_b, CL_TRUE, 0, sizeof(float) * B_SIZE, B, 0, NULL, NULL);
 
         printf("set the arguements of our kernel\n");
         //set the arguements of our kernel
-        err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&cl_a);
-        err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&cl_b);
-        err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)cl_c_ptr);
-        err = clSetKernelArg(kernel, 3, sizeof(unsigned int), (void *)&M);
-        err = clSetKernelArg(kernel, 4, sizeof(unsigned int), (void *)&K);
-        err = clSetKernelArg(kernel, 5, sizeof(unsigned int), (void *)&N);
+        this->err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&cl_a);
+        this->err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&cl_b);
+        this->err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&cl_c);
+        this->err = clSetKernelArg(kernel, 3, sizeof(unsigned int), (void *)&M);
+        this->err = clSetKernelArg(kernel, 4, sizeof(unsigned int), (void *)&K);
+        this->err = clSetKernelArg(kernel, 5, sizeof(unsigned int), (void *)&N);
         //Wait for the command queue to finish these commands before proceeding
         clFinish(commandQueue);
 
@@ -151,33 +125,27 @@ namespace utils
         delete[] B;
         delete[] C;
 
-        return kernel;
-    }
-    void runKernel(cl_kernel kernel, cl_command_queue commandQueue, cl_mem cl_c)
-    {
         printf("in runKernel\n");
         //execute the kernel
-        cl_event event;
-        const size_t globalWorkSize = 50;
-        err = clEnqueueNDRangeKernel(commandQueue, kernel, 1, NULL, &globalWorkSize, NULL, 0, NULL, &event);
-        clReleaseEvent(event);
-        printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
+        const size_t globalWorkSize = C_SIZE;
+        this->err = clEnqueueNDRangeKernel(commandQueue, kernel, 2, NULL, &globalWorkSize, NULL, 0, NULL, NULL);
+        printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(this->err));
 
         //lets check our calculations by reading from the device memory and printing out the results
         float c_done[globalWorkSize];
-        err = clEnqueueReadBuffer(commandQueue, cl_c, CL_TRUE, 0, sizeof(float) * globalWorkSize, &c_done, 0, NULL, &event);
-        printf("clEnqueueReadBuffer: %s\n", oclErrorString(err));
-        clReleaseEvent(event);
+        this->err = clEnqueueReadBuffer(commandQueue, cl_c, CL_TRUE, 0, sizeof(float) * globalWorkSize, &c_done, 0, NULL, NULL);
+        printf("clEnqueueReadBuffer: %s\n", oclErrorString(this->err));
 
-        for (int i = 0; i < globalWorkSize; i++)
-        {
-            printf("c_done[%d] = %g\n", i, c_done[i]);
-        }
+        printMatrix(M, N, c_done);
+    }
+    bool CL::checkAndPrint(string errMsg) {
+        string stdMsg = "";
+        return this->checkAndPrint(errMsg, stdMsg);
     }
 
-    bool checkAndPrint(string errMsg, string stdMsg)
+    bool CL::checkAndPrint(string errMsg, string stdMsg)
     {
-        if (err != CL_SUCCESS)
+        if (this->err != CL_SUCCESS)
         {
             if (!errMsg.empty())
             {
@@ -193,6 +161,16 @@ namespace utils
             }
             return true;
         }
+    }
+
+    void CL::run() {
+        getPlatformId();
+        getDeviceId();
+        createContext();
+        createCommandQueue();
+        loadProgram();
+        buildProgram();
+        runKernel();
     }
 
     // Helper function to get error string
@@ -271,5 +249,21 @@ namespace utils
         const int index = -error;
 
         return (index >= 0 && index < errorCount) ? errorString[index] : "";
+    }
+
+    void printMatrix(int M, int N, float *matrix) {
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < N; j++)
+            {
+                printf("%g", matrix[i*M + j]);
+                if (matrix[i*M + j] < 10) {
+                    printf("  ");
+                }
+                else {
+                    printf(" ");
+                }
+            }
+            printf("\n");
+        }
     }
 } // namespace utils
