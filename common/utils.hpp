@@ -8,7 +8,7 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include <CL/cl.hpp>
+#include <CL/cl.h>
 #include <iostream>
 #include <string>
 

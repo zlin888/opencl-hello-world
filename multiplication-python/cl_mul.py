@@ -23,7 +23,10 @@ class CL:
                               for i in range(2)], dtype=numpy.float32)
         self.b = numpy.array([range(5)
                               for i in range(10)], dtype=numpy.float32)
-        self.c = self.a * self.b
+        self.c = numpy.array([range(5)
+                              for i in range(2)], dtype=numpy.float32)
+        print(self.a)
+        print(self.b)
 
         # create OpenCL buffers
         self.a_buf = cl.Buffer(self.ctx, mf.READ_ONLY |
@@ -34,10 +37,10 @@ class CL:
 
     def execute(self):
         kernel = self.program.mul
-        kernel.set_args(self.a_buf, self.b_buf, self.c_buf, 2, 5, 10)
-        cl.enqueue_nd_range_kernel(self.queue, kernel, (2,5), None) 
+        kernel.set_args(self.a_buf, self.b_buf, self.c_buf, numpy.int32(2), numpy.int32(5), numpy.int32(10))
+        cl.enqueue_nd_range_kernel(self.queue, kernel, (2, 5), None)
 
-        c = numpy.empty_like(self.a * self.b)
+        c = numpy.empty_like(self.a.dot(self.b))
         cl.enqueue_copy(self.queue, c, self.c_buf).wait()
         print("a", self.a)
         print("b", self.b)

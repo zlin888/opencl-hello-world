@@ -11,6 +11,7 @@ namespace utils
         cl_uint num_entries = 1;
         this->err = clGetPlatformIDs(num_entries, &this->platformId, &numPlatforms);
         //oclErrorString is also defined in util.cpp and comes from the NVIDIA SDK
+        printf("number of platform %d\n", numPlatforms);
         printf("oclGetPlatformID: %s\n", oclErrorString(this->err));
         checkAndPrint("fail to get platformID");
     }
@@ -18,10 +19,19 @@ namespace utils
     void CL::getDeviceId()
     {
         cl_uint numDevices;
-        this->err = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_GPU, 1, &this->deviceId, &numDevices);
+        this->err = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, 0, NULL, &numDevices);
         printf("clGetDeviceIDs (get number of devices): %s\n", oclErrorString(this->err));
+        clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, numDevices,
+                       &deviceId, NULL);
         printf("number of devices %d\n", numDevices);
         checkAndPrint("fail to get deviceID");
+
+        size_t valueSize;
+        clGetDeviceInfo(deviceId, CL_DEVICE_NAME, 0, NULL, &valueSize);
+        char* value = (char *)malloc(valueSize);
+        clGetDeviceInfo(deviceId, CL_DEVICE_NAME, valueSize, value, NULL);
+        printf("%d. Device: %s\n", numDevices, value);
+        free(value);
     }
 
     void CL::createContext()
@@ -41,7 +51,7 @@ namespace utils
         const char *cSource = this->kernel_source.c_str();
         size_t lengths = (size_t)this->kernel_source.size();
         this->program = clCreateProgramWithSource(this->context, 1,
-            &cSource, &lengths, &this->err);
+                                                  &cSource, &lengths, &this->err);
     }
 
     void CL::buildProgram()
@@ -113,27 +123,32 @@ namespace utils
         printf("set the arguements of our kernel\n");
         //set the arguements of our kernel
         this->err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&cl_a);
+        printf("set arg0: %s\n", oclErrorString(this->err));
         this->err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&cl_b);
+        printf("set arg1: %s\n", oclErrorString(this->err));
         this->err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&cl_c);
+        printf("set arg2: %s\n", oclErrorString(this->err));
         this->err = clSetKernelArg(kernel, 3, sizeof(unsigned int), (void *)&M);
+        printf("set arg3: %s\n", oclErrorString(this->err));
         this->err = clSetKernelArg(kernel, 4, sizeof(unsigned int), (void *)&K);
+        printf("set arg4: %s\n", oclErrorString(this->err));
         this->err = clSetKernelArg(kernel, 5, sizeof(unsigned int), (void *)&N);
+        printf("set arg5: %s\n", oclErrorString(this->err));
 
         //clean up allocated space.
         delete[] A;
         delete[] B;
         delete[] C;
 
-        printf("in runKernel\n");
         //execute the kernel
         const size_t globalWorkSize = C_SIZE;
         cl_event event;
+        printf("in runKernel\n");
         this->err = clEnqueueNDRangeKernel(commandQueue, kernel, 2, NULL, &globalWorkSize, NULL, 0, NULL, &event);
         printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(this->err));
 
         //Wait for the command queue to finish these commands before proceeding
         clFinish(commandQueue);
-
 
         printRuntimeInfo(event);
         //lets check our calculations by reading from the device memory and printing out the results
@@ -143,7 +158,8 @@ namespace utils
 
         printMatrix(M, N, c_done);
     }
-    bool CL::checkAndPrint(string errMsg) {
+    bool CL::checkAndPrint(string errMsg)
+    {
         string stdMsg = "";
         return this->checkAndPrint(errMsg, stdMsg);
     }
@@ -168,7 +184,8 @@ namespace utils
         }
     }
 
-    void CL::run() {
+    void CL::run()
+    {
         getPlatformId();
         getDeviceId();
         createContext();
@@ -182,7 +199,7 @@ namespace utils
     // *********************************************************************
     const char *oclErrorString(cl_int error)
     {
-        static const char *errorString[] ={
+        static const char *errorString[] = {
             "CL_SUCCESS",
             "CL_DEVICE_NOT_FOUND",
             "CL_DEVICE_NOT_AVAILABLE",
@@ -256,15 +273,19 @@ namespace utils
         return (index >= 0 && index < errorCount) ? errorString[index] : "";
     }
 
-    void printMatrix(int M, int N, float *matrix) {
-        for (int i = 0; i < M; i++) {
+    void printMatrix(int M, int N, float *matrix)
+    {
+        for (int i = 0; i < M; i++)
+        {
             for (int j = 0; j < N; j++)
             {
-                printf("%g", matrix[i*M + j]);
-                if (matrix[i*M + j] < 10) {
+                printf("%g", matrix[i * M + j]);
+                if (matrix[i * M + j] < 10)
+                {
                     printf("  ");
                 }
-                else {
+                else
+                {
                     printf(" ");
                 }
             }
@@ -272,7 +293,8 @@ namespace utils
         }
     }
 
-    void printRuntimeInfo(cl_event event) {
+    void printRuntimeInfo(cl_event event)
+    {
         cl_ulong queued_time, end_time;
         clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_QUEUED, sizeof(cl_ulong), &queued_time, NULL);
         clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &end_time, NULL);
