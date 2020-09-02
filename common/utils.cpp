@@ -5,6 +5,10 @@ using namespace std;
 namespace utils
 {
 
+    CL::CL(string kernel_source, const char *kernel_name) : kernel_source(kernel_source), kernel_name(kernel_name){
+        setup();
+    };
+
     void CL::getPlatformId()
     {
         cl_uint numPlatforms;
@@ -28,7 +32,7 @@ namespace utils
 
         size_t valueSize;
         clGetDeviceInfo(deviceId, CL_DEVICE_NAME, 0, NULL, &valueSize);
-        char* value = (char *)malloc(valueSize);
+        char *value = (char *)malloc(valueSize);
         clGetDeviceInfo(deviceId, CL_DEVICE_NAME, valueSize, value, NULL);
         printf("%d. Device: %s\n", numDevices, value);
         free(value);
@@ -76,10 +80,6 @@ namespace utils
 
     void CL::runKernel()
     {
-        // initialize our kernel from the program
-        this->kernel = clCreateKernel(this->program, this->kernel_name, &this->err);
-        printf("clCreateKernel: %s\n", oclErrorString(this->err));
-
         //initialize our CPU memory arrays, send them to the device and set the kernel arguements
         int size = 10;
         int M = 5;
@@ -184,7 +184,7 @@ namespace utils
         }
     }
 
-    void CL::run()
+    void CL::setup()
     {
         getPlatformId();
         getDeviceId();
@@ -192,7 +192,10 @@ namespace utils
         createCommandQueue();
         loadProgram();
         buildProgram();
-        runKernel();
+
+        // initialize our kernel from the program
+        this->kernel = clCreateKernel(this->program, this->kernel_name, &this->err);
+        printf("clCreateKernel: %s\n", oclErrorString(this->err));
     }
 
     // Helper function to get error string

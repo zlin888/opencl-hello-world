@@ -18,14 +18,15 @@ namespace utils
     const char *oclErrorString(cl_int error);
     void printMatrix(int M, int N, float *matrix);
     void printRuntimeInfo(cl_event event);
-    class CL {
+    class CL
+    {
     public:
         string kernel_source;
-        const char* kernel_name;
-        CL(string kernel_source, const char* kernel_name) :
-            kernel_source(kernel_source), kernel_name(kernel_name) {};
+        const char *kernel_name;
+        CL(string kernel_source, const char *kernel_name);
 
-        ~CL() {
+        ~CL()
+        {
             // if(kernel)clReleaseKernel(kernel);
             if (program)
                 clReleaseProgram(program);
@@ -33,12 +34,6 @@ namespace utils
                 clReleaseCommandQueue(commandQueue);
             if (kernel)
                 clReleaseKernel(kernel);
-            if (cl_a)
-                clReleaseMemObject(cl_a);
-            if (cl_b)
-                clReleaseMemObject(cl_b);
-            if (cl_c)
-                clReleaseMemObject(cl_c);
             if (context)
                 clReleaseContext(context);
         };
@@ -60,7 +55,7 @@ namespace utils
         void loadProgram();
         void buildProgram();
         void runKernel();
-        void run();
+        void setup();
         bool checkAndPrint(string errMsg, string stdMsg);
         bool checkAndPrint(string errMsg);
     };
