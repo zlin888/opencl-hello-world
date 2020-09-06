@@ -20,15 +20,37 @@ class ConvolutionCL : public utils::CL
 {
 public:
     using CL::CL;
+    void prepare();
     void runKernel();
+    void showImage(const JpegLoader::ImageInfo *img_info);
+
+    const JpegLoader::ImageInfo *img_info;
 };
+void ConvolutionCL::prepare()
+{
+    JpegLoader jpeg_loader;
+    img_info = jpeg_loader.Load("../assets/cat-640-426.jpeg");
+}
 
 void ConvolutionCL::runKernel()
 {
-    JpegLoader jpeg_loader;
-    const JpegLoader::ImageInfo *img_info = jpeg_loader.Load("../assets/cat-640-426.jpeg");
+    prepare()
+    showImage(img_info);
+    
 
 
+    showImage(img_info);
+}
+
+void ConvolutionCL::showImage(const JpegLoader::ImageInfo *img_info)
+{
+    uint8_t *data = img_info->pData;
+    uint32_t width = img_info->nWidth;
+
+    cout << "\n";
+    cout << (int)data[300 + 120 * width] << "|" << (int)data[300 + 121 * width] << "|" << (int)data[300 + 122 * width] << endl;
+    cout << (int)data[301 + 120 * width] << "|" << (int)data[301 + 121 * width] << "|" << (int)data[301 + 122 * width] << endl;
+    cout << (int)data[302 + 120 * width] << "|" << (int)data[302 + 121 * width] << "|" << (int)data[302 + 122 * width] << endl;
 }
 
 int main(int argc, char **argvs)
