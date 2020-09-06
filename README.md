@@ -7,3 +7,6 @@ cmake
 make
 ./a.out
 ```
+
+# prequisities
+OpenCL, CMake, GCC
