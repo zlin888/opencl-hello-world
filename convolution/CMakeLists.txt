@@ -12,7 +12,6 @@ FIND_PACKAGE (JPEG)
 SET( COMMON_PATH ${img_rotation_SOURCE_DIR}/../common)
 
 INCLUDE_DIRECTORIES( 
-    ${img_rotation_SOURCE_DIR}/../opencl10
     ${img_rotation_SOURCE_DIR}/../common
 )
 
