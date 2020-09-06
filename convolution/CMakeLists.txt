@@ -7,6 +7,7 @@ SET( CMAKE_MODULE_PATH ${img_rotation_SOURCE_DIR}/../cmake)
 message("CMake module path: ${CMAKE_MODULE_PATH}\n")
 
 FIND_PACKAGE (OPENCL)
+FIND_PACKAGE (JPEG)
 
 SET( COMMON_PATH ${img_rotation_SOURCE_DIR}/../common)
 
@@ -25,7 +26,7 @@ message("${includes}\n")
 ADD_DEFINITIONS(-g )
 
 # #the source files we want to compile into the library
-set (LIBCXXFILES ${COMMON_PATH}/utils.cpp)
+set (LIBCXXFILES ${COMMON_PATH}/utils.cpp ${COMMON_PATH}/jpeg_loader.cpp)
 #set a CMake variable to name the library
 SET(cllib img_rotation)
 ADD_LIBRARY(${cllib} ${LIBCXXFILES})
@@ -38,4 +39,5 @@ ADD_EXECUTABLE(${EXEC} main.cpp)
 TARGET_LINK_LIBRARIES (${EXEC}
    ${cllib}
    ${OPENCL_LIBRARIES}
+   ${JPEG_LIBRARIES}
 )
