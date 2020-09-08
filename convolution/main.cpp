@@ -12,6 +12,7 @@
 #include "kernel.hpp" //const char* kernel_source is defined in here
 #include <jpeg_loader.hpp>
 #include <iostream>
+#include <memory>
 
 using namespace std;
 using namespace utils;
@@ -20,37 +21,47 @@ class ConvolutionCL : public utils::CL
 {
 public:
     using CL::CL;
+    ~ConvolutionCL()
+    {
+        delete[] img_info->pData;
+    };
     void prepare();
     void runKernel();
     void showImage(const JpegLoader::ImageInfo *img_info);
 
-    const JpegLoader::ImageInfo *img_info;
+    unique_ptr<const JpegLoader::ImageInfo> img_info;
+
+    uint32_t img_size;
 };
 void ConvolutionCL::prepare()
 {
     JpegLoader jpeg_loader;
-    img_info = jpeg_loader.Load("../assets/cat-640-426.jpeg");
+    // memcpy((void *)img_info, jpeg_loader.Load("../assets/cat-640-426.jpeg"), sizeof(JpegLoader::ImageInfo));
+    img_info = make_unique<const JpegLoader::ImageInfo>(*jpeg_loader.Load("../assets/cat-640-426.jpeg"));
+    img_size = img_info->nWidth * img_info->nHeight;
 }
 
 void ConvolutionCL::runKernel()
 {
-    prepare()
-    showImage(img_info);
-    
-
-
-    showImage(img_info);
+    prepare();
+    // showImage(img_info.get());
+    auto inputBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY, img_size * sizeof(uint8_t), NULL, &this->err);
+    auto outputBuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, img_size * sizeof(uint8_t), NULL, &this->err);
+    // showImage(img_info.get());
 }
 
 void ConvolutionCL::showImage(const JpegLoader::ImageInfo *img_info)
 {
-    uint8_t *data = img_info->pData;
-    uint32_t width = img_info->nWidth;
 
-    cout << "\n";
-    cout << (int)data[300 + 120 * width] << "|" << (int)data[300 + 121 * width] << "|" << (int)data[300 + 122 * width] << endl;
-    cout << (int)data[301 + 120 * width] << "|" << (int)data[301 + 121 * width] << "|" << (int)data[301 + 122 * width] << endl;
-    cout << (int)data[302 + 120 * width] << "|" << (int)data[302 + 121 * width] << "|" << (int)data[302 + 122 * width] << endl;
+    uint8_t *data = img_info->pData;
+    for (int i = 0; i < img_info->nHeight; i++)
+    {
+        for (int j = 0; j < img_info->nWidth; j++)
+        {
+            cout << (int)data[i * img_info->nWidth + j] << "|";
+        }
+        cout << endl;
+    }
 }
 
 int main(int argc, char **argvs)
