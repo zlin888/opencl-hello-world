@@ -5,19 +5,21 @@
  * @modify date 2020-08-03 11:14:17
  * @desc utils for opencl
  */
-#ifndef UTILS_HPP
-#define UTILS_HPP
+#ifndef MY_UTILS_HPP
+#define MY_UTILS_HPP
 
 #include <CL/cl.h>
 #include <iostream>
 #include <string>
+#include <opencv2/opencv.hpp>
 
 using namespace std;
-namespace utils
+namespace myutils
 {
     const char *oclErrorString(cl_int error);
     void printMatrix(int M, int N, float *matrix);
     void printRuntimeInfo(cl_event event);
+    void displayImage(const cv::Mat &image);
     class CL
     {
     public:

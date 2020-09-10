@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include <math.h>
 using namespace std;
-namespace utils
+namespace myutils
 {
 
-    CL::CL(string kernel_source, const char *kernel_name) : kernel_source(kernel_source), kernel_name(kernel_name){
+    CL::CL(string kernel_source, const char *kernel_name) : kernel_source(kernel_source), kernel_name(kernel_name)
+    {
         setup();
     };
 
@@ -306,4 +307,11 @@ namespace utils
         cout << "end_time: " << end_time << endl;
         cout << "runtime: " << runtime << endl;
     }
-} // namespace utils
+
+    void displayImage(const cv::Mat &image)
+    {
+        cv::namedWindow("Display Image", cv::WINDOW_AUTOSIZE);
+        cv::imshow("Display Image", image);
+        cv::waitKey(0);
+    }
+} // namespace myutils

@@ -1,18 +1,19 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-project(img_rotation)
+project(convolution)
 
 #need to include FindOPENCL.cmake to
-SET( CMAKE_MODULE_PATH ${img_rotation_SOURCE_DIR}/../cmake)
+SET( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
 
 message("CMake module path: ${CMAKE_MODULE_PATH}\n")
 
 FIND_PACKAGE (OPENCL)
 FIND_PACKAGE (JPEG)
+FIND_PACKAGE (OpenCV REQUIRED)
 
-SET( COMMON_PATH ${img_rotation_SOURCE_DIR}/../common)
+SET( COMMON_PATH ${CMAKE_SOURCE_DIR}/../common)
 
 INCLUDE_DIRECTORIES( 
-    ${img_rotation_SOURCE_DIR}/../common
+    ${CMAKE_SOURCE_DIR}/../common
 )
 
 message("include directories: \n")
@@ -25,9 +26,14 @@ message("${includes}\n")
 ADD_DEFINITIONS(-g )
 
 # #the source files we want to compile into the library
-set (LIBCXXFILES ${COMMON_PATH}/utils.cpp ${COMMON_PATH}/jpeg_loader.cpp)
+set (LIBCXXFILES
+    ${COMMON_PATH}/utils.cpp
+    ${COMMON_PATH}/utils.hpp
+    ${COMMON_PATH}/jpeg_loader.cpp
+    ${COMMON_PATH}/jpeg_loader.hpp)
+
 #set a CMake variable to name the library
-SET(cllib img_rotation)
+SET(cllib convolution)
 ADD_LIBRARY(${cllib} ${LIBCXXFILES})
 
 
@@ -35,8 +41,15 @@ ADD_LIBRARY(${cllib} ${LIBCXXFILES})
 SET(EXEC a.out) 
 ADD_EXECUTABLE(${EXEC} main.cpp)
 
-TARGET_LINK_LIBRARIES (${EXEC}
+# utils.hpp/cpp rely on the OPENCVLIBRARIES 
+TARGET_LINK_LIBRARIES (
    ${cllib}
+   ${OpenCV_LIBRARIES}
+)
+
+TARGET_LINK_LIBRARIES (${EXEC}
    ${OPENCL_LIBRARIES}
    ${JPEG_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+   ${cllib}
 )

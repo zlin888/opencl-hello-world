@@ -10,58 +10,42 @@
 #include <iostream>
 #include <math.h>
 #include "kernel.hpp" //const char* kernel_source is defined in here
-#include <jpeg_loader.hpp>
 #include <iostream>
 #include <memory>
+#include <opencv2/opencv.hpp>
+#include <stdio.h>
 
 using namespace std;
-using namespace utils;
+using namespace myutils;
+using namespace cv;
 
-class ConvolutionCL : public utils::CL
+class ConvolutionCL : public myutils::CL
 {
 public:
-    using CL::CL;
-    ~ConvolutionCL()
-    {
-        delete[] img_info->pData;
-    };
+    using myutils::CL::CL;
     void prepare();
     void runKernel();
-    void showImage(const JpegLoader::ImageInfo *img_info);
-
-    unique_ptr<const JpegLoader::ImageInfo> img_info;
-
     uint32_t img_size;
+    Mat image;
 };
+
 void ConvolutionCL::prepare()
 {
-    JpegLoader jpeg_loader;
-    // memcpy((void *)img_info, jpeg_loader.Load("../assets/cat-640-426.jpeg"), sizeof(JpegLoader::ImageInfo));
-    img_info = make_unique<const JpegLoader::ImageInfo>(*jpeg_loader.Load("../assets/cat-640-426.jpeg"));
-    img_size = img_info->nWidth * img_info->nHeight;
+    image = imread("../assets/cat.jpeg");
+    myutils::displayImage(image);
 }
 
 void ConvolutionCL::runKernel()
 {
     prepare();
-    // showImage(img_info.get());
     auto inputBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY, img_size * sizeof(uint8_t), NULL, &this->err);
     auto outputBuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, img_size * sizeof(uint8_t), NULL, &this->err);
-    // showImage(img_info.get());
-}
 
-void ConvolutionCL::showImage(const JpegLoader::ImageInfo *img_info)
-{
+    // this->err = clEnqueueWriteBuffer(this->commandQueue, inputBuffer, CL_TRUE, 0, img_size * sizeof(uint8_t), img_info->pData, 0, NULL, NULL);
+    // printf("enqueue buffer: %s\n", oclErrorString(this->err));
 
-    uint8_t *data = img_info->pData;
-    for (int i = 0; i < img_info->nHeight; i++)
-    {
-        for (int j = 0; j < img_info->nWidth; j++)
-        {
-            cout << (int)data[i * img_info->nWidth + j] << "|";
-        }
-        cout << endl;
-    }
+    // this->err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&inputBuffer);
+    // printf("set arg0: %s\n", oclErrorString(this->err));
 }
 
 int main(int argc, char **argvs)

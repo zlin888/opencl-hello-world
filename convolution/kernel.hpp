@@ -10,7 +10,7 @@
 
 const char *kernel_name = "convolution";
 std::string kernel_source = STRINGIFY(
-    __kernel void convolution(__global float *src_data, __global float *dest_data, int W, int H, float sinTheta, float cosTheta) //Rotation Parameters
+    __kernel void convolution(__global float *src_data, __global float *dest_data, int W, int H) //Rotation Parameters
     {
         //Work-item gets its index within index space
         const int xi = get_global_id(0);
